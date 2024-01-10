@@ -2,3 +2,4 @@ rootProject.name = 'lab4-web'
 
 include 'service-registry'
 include 'authorization-server'
+include 'dev-resource-server'
