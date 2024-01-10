@@ -4,3 +4,11 @@ server:
 spring:
   application:
     name: api-gateway
+
+eureka:
+  instance:
+    lease-expiration-duration-in-seconds: 5
+    lease-renewal-interval-in-seconds: 2
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka
