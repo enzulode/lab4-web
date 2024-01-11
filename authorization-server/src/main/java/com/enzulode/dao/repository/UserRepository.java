@@ -1,6 +1,6 @@
-package com.enzulode.repository;
+package com.enzulode.dao.repository;
 
-import com.enzulode.entity.UserEntity;
+import com.enzulode.dao.entity.UserEntity;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.InitializingBean;
