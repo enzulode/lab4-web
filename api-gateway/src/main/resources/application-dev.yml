@@ -5,6 +5,19 @@ spring:
   application:
     name: api-gateway
 
+  cloud:
+    gateway:
+      default-filters:
+        - TokenRelay=
+      routes:
+        - id: dev-resource
+          uri: lb://DEV-RESOURCE-SERVER-1/
+          predicates:
+            - Path=/resource/**
+          filters:
+            - RewritePath=/resource/?(?<segment>.*), /$\{segment}
+            - RemoveRequestHeader=Cookie
+
   security:
     oauth2:
       client:
