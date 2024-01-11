@@ -1,10 +1,19 @@
 package com.enzulode.conf;
 
+import com.enzulode.model.KeysConfiguration;
+import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.source.JWKSource;
+import com.nimbusds.jose.proc.SecurityContext;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -88,5 +97,28 @@ public class AuthorizationServerConfig {
                         .build();
 
         return new InMemoryRegisteredClientRepository(developmentClient);
+    }
+
+    /**
+     * Configure development jwk source.
+     *
+     * @param keys keys configuration properties holder instance
+     * @return development-ready jwk source instance
+     */
+    @Bean
+    @Profile("dev")
+    public JWKSource<SecurityContext> jwkSource(KeysConfiguration keys) {
+        List<JWK> rsaKeys =
+                keys.getRsa().stream()
+                        .map(
+                                keyPair ->
+                                        new RSAKey.Builder(keyPair.getPublicKey())
+                                                .keyID(keyPair.getId())
+                                                .privateKey(keyPair.getPrivateKey())
+                                                .build())
+                        .collect(Collectors.toList());
+
+        JWKSet jwkSet = new JWKSet(rsaKeys);
+        return (jwkSelector, securityContext) -> jwkSelector.select(jwkSet);
     }
 }
