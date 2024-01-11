@@ -5,8 +5,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.stereotype.Repository;
 
 /** Development implementation of user repository. */
+@Repository
 public class DevelopmentUserRepositoryImpl implements UserRepository {
 
     /** Temporary user storage. */

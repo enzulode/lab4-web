@@ -4,10 +4,8 @@ import com.enzulode.dao.entity.UserEntity;
 import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.stereotype.Repository;
 
 /** UserEntity repository abstraction. */
-@Repository
 public interface UserRepository extends InitializingBean {
 
     /**
