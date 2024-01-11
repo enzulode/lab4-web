@@ -7,10 +7,8 @@ spring:
   security:
     oauth2:
       resourceserver:
-        opaquetoken:
-          introspection-uri: http://localhost:9000/oauth2/introspect
-          client-id: dev-client
-          client-secret: dev
+        jwt:
+          issuer-uri: http://localhost:9000
 
 eureka:
   instance:
