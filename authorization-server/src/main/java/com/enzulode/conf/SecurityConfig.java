@@ -2,7 +2,6 @@ package com.enzulode.conf;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -24,11 +23,18 @@ public class SecurityConfig {
      * @throws Exception if configuration goes wrong
      */
     @Bean
-    @Order(Ordered.HIGHEST_PRECEDENCE + 1)
+    @Order(2)
     public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity security) throws Exception {
-        security.authorizeHttpRequests(auth -> auth.anyRequest().authenticated());
-
-        return security.formLogin(Customizer.withDefaults()).build();
+        security.authorizeHttpRequests(
+                        auth ->
+                                auth.requestMatchers("/error")
+                                        .permitAll()
+                                        .requestMatchers("/actuator/**")
+                                        .permitAll()
+                                        .anyRequest()
+                                        .authenticated())
+                .formLogin(Customizer.withDefaults());
+        return security.build();
     }
 
     /**
