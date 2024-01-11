@@ -5,6 +5,13 @@ spring:
   application:
     name: authorization-server
 
+  security:
+    keys:
+      rsa:
+        - id: "dev-key"
+          private-key: "classpath:dev_rsa.key"
+          public-key: "classpath:dev_rsa.pub"
+
 eureka:
   instance:
     lease-expiration-duration-in-seconds: 5
