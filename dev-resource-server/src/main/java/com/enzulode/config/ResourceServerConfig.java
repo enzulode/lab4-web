@@ -6,8 +6,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.oauth2.jwt.JwtDecoders;
 import org.springframework.security.web.SecurityFilterChain;
 
 /** This class contains security policy configuration for the development resource server. */
@@ -28,30 +27,16 @@ public class ResourceServerConfig {
      */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity security) throws Exception {
-        security.sessionManagement(
-                        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(
-                        auth ->
-                                auth.requestMatchers("/actuator/**")
-                                        .permitAll()
-                                        .anyRequest()
-                                        .authenticated())
+        security.authorizeHttpRequests(auth -> auth.anyRequest().authenticated())
                 .oauth2ResourceServer(
                         rs ->
-                                rs.opaqueToken(
-                                        opaque ->
-                                                opaque.introspectionUri(
+                                rs.jwt(
+                                        jwt ->
+                                                jwt.decoder(
+                                                        JwtDecoders.fromIssuerLocation(
                                                                 properties
-                                                                        .getOpaquetoken()
-                                                                        .getIntrospectionUri())
-                                                        .introspectionClientCredentials(
-                                                                properties
-                                                                        .getOpaquetoken()
-                                                                        .getClientId(),
-                                                                properties
-                                                                        .getOpaquetoken()
-                                                                        .getClientSecret())))
-                .csrf(AbstractHttpConfigurer::disable);
+                                                                        .getJwt()
+                                                                        .getIssuerUri()))));
 
         return security.build();
     }
