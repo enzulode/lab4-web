@@ -7,11 +7,14 @@ import com.enzulode.dto.TokenInfoDto.TokenInfoDtoBuilder;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Collections;
 import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.http.server.ServletServerHttpResponse;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.server.authorization.OAuth2Authorization;
 import org.springframework.security.oauth2.server.authorization.OAuth2AuthorizationService;
 import org.springframework.security.oauth2.server.authorization.OAuth2TokenIntrospection;
@@ -73,6 +76,14 @@ public class CustomIntrospectionEndpointAuthenticationSuccessHandlerImpl
                                 .formatted(unsupportedPrincipalClassName));
             }
 
+            //            apply scopes from granted authorities
+            String scopePrefix = "SCOPE_";
+            tokenInfoDtoBuilder.scopes(
+                    authorizedUser.getAuthorities().stream()
+                            .map(GrantedAuthority::getAuthority)
+                            .filter(authority -> authority.startsWith(scopePrefix))
+                            .map(scope -> scope.substring(scopePrefix.length()))
+                            .collect(Collectors.toList()));
             //            seems that authentication succeed - apply principal to the principal dto
             tokenInfoDtoBuilder.principal(IntrospectionPrincipalDto.build(authorizedUser));
         }
@@ -92,7 +103,10 @@ public class CustomIntrospectionEndpointAuthenticationSuccessHandlerImpl
                         .sub(claims.getSubject())
                         .aud(claims.getAudience())
                         .nbf(claims.getNotBefore())
-                        .scopes(claims.getScopes())
+                        .scopes(
+                                (claims.getScopes() == null || claims.getScopes().isEmpty())
+                                        ? Collections.emptyList()
+                                        : claims.getScopes())
                         .iss(claims.getIssuer())
                         .exp(claims.getExpiresAt())
                         .iat(claims.getIssuedAt())
