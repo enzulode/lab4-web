@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
@@ -35,11 +36,16 @@ import org.springframework.security.oauth2.server.authorization.settings.TokenSe
 import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
 import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
 
 /** This class contains OAuth2 Authorization Server configurations. */
 @Configuration
+@RequiredArgsConstructor
 public class AuthorizationServerConfig {
+
+    /** Custom introspection endpoint authentication success handler instance. */
+    private final AuthenticationSuccessHandler authenticationSuccessHandler;
 
     /**
      * This method configures the default oauth2 authorization server filter chain.
@@ -59,6 +65,11 @@ public class AuthorizationServerConfig {
         //        enable oidc
         security.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
                 .oidc(Customizer.withDefaults());
+
+        security.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
+                .tokenIntrospectionEndpoint(
+                        config ->
+                                config.introspectionResponseHandler(authenticationSuccessHandler));
 
         //        configure authentication entrypoint and enable jwt-based authentication for
         // resource server
