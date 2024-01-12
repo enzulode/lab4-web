@@ -9,7 +9,6 @@ import com.nimbusds.jose.proc.SecurityContext;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -19,22 +18,16 @@ import org.springframework.context.annotation.Profile;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.oauth2.core.AuthorizationGrantType;
 import org.springframework.security.oauth2.core.ClientAuthenticationMethod;
 import org.springframework.security.oauth2.core.oidc.OidcScopes;
-import org.springframework.security.oauth2.core.oidc.endpoint.OidcParameterNames;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
-import org.springframework.security.oauth2.server.authorization.OAuth2TokenType;
 import org.springframework.security.oauth2.server.authorization.client.InMemoryRegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClient;
 import org.springframework.security.oauth2.server.authorization.client.RegisteredClientRepository;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configuration.OAuth2AuthorizationServerConfiguration;
 import org.springframework.security.oauth2.server.authorization.config.annotation.web.configurers.OAuth2AuthorizationServerConfigurer;
 import org.springframework.security.oauth2.server.authorization.settings.TokenSettings;
-import org.springframework.security.oauth2.server.authorization.token.JwtEncodingContext;
-import org.springframework.security.oauth2.server.authorization.token.OAuth2TokenCustomizer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.LoginUrlAuthenticationEntryPoint;
@@ -150,36 +143,5 @@ public class AuthorizationServerConfig {
     @Bean
     public JwtDecoder jwtDecoder(JWKSource<SecurityContext> jwkSource) {
         return OAuth2AuthorizationServerConfiguration.jwtDecoder(jwkSource);
-    }
-
-    /**
-     * Customizing jwt and id-token contents with list of authorities.
-     *
-     * @return configured oauth2 token customizer instance
-     */
-    @Bean
-    public OAuth2TokenCustomizer<JwtEncodingContext> tokenCustomizer() {
-        return ctx -> {
-            Authentication principal = ctx.getPrincipal();
-
-            //            customize jwt access token
-            if (OAuth2TokenType.ACCESS_TOKEN.equals(ctx.getTokenType())) {
-                Set<String> authorities =
-                        principal.getAuthorities().stream()
-                                .map(GrantedAuthority::getAuthority)
-                                .collect(Collectors.toSet());
-
-                ctx.getClaims().claim("authorities", authorities);
-            }
-
-            //            customize oidc id-token
-            if (OidcParameterNames.ID_TOKEN.equals(ctx.getTokenType().getValue())) {
-                Set<String> authorities =
-                        principal.getAuthorities().stream()
-                                .map(GrantedAuthority::getAuthority)
-                                .collect(Collectors.toSet());
-                ctx.getClaims().claim("authorities", authorities);
-            }
-        };
     }
 }
