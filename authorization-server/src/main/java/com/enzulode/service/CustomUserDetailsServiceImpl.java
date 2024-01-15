@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
  * This service is responsible for user loading process. Service loads user from the effective
  * storage.
  */
-@Service
+@Service("customUserDetailsService")
 @RequiredArgsConstructor
 public class CustomUserDetailsServiceImpl implements UserDetailsService {
 
