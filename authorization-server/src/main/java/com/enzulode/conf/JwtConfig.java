@@ -1,7 +1,7 @@
 package com.enzulode.conf;
 
 import com.enzulode.dto.AuthorizedUser;
-import com.enzulode.dto.IntrospectionPrincipalDto;
+import com.enzulode.dto.UserInfoDto;
 import com.enzulode.model.KeysConfiguration;
 import com.nimbusds.jose.jwk.JWK;
 import com.nimbusds.jose.jwk.JWKSet;
@@ -79,7 +79,7 @@ public class JwtConfig {
 
                 if (!(attributeAuth.getPrincipal() instanceof AuthorizedUser authorizedUser)) return;
                 ctx.getClaims()
-                    .claim("principal", IntrospectionPrincipalDto.build(authorizedUser));
+                    .claim("principal", UserInfoDto.build(authorizedUser));
             }
         };
 //        @formatter:on
