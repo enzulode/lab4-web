@@ -1,0 +1,13 @@
+volumes:
+  lab4-web-dev-db-volume: {}
+
+services:
+  lab4-web-development-db:
+    container_name: l4-dev-db
+    image: bitnami/postgresql:15.2.0
+    environment:
+      POSTGRESQL_DATABASE: postgre-dev
+      POSTGRESQL_USERNAME: dev-user
+      POSTGRESQL_PASSWORD: dev-password
+    ports:
+      - "5432:5432"
