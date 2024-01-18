@@ -8,6 +8,8 @@ import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
 /** This class contains security-related configurations for the authorization server. */
@@ -51,5 +53,15 @@ public class SecurityConfig {
             .userDetailsService(userDetailsService);
 //        @formatter:on
         return security.build();
+    }
+
+    /**
+     * Configure application password encoder instance using password encoder factories.
+     *
+     * @return delegating password encoder instance
+     */
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return PasswordEncoderFactories.createDelegatingPasswordEncoder();
     }
 }
