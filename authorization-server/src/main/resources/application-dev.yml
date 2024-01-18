@@ -5,6 +5,12 @@ spring:
   application:
     name: authorization-server
 
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgre-dev
+    username: dev-user
+    password: dev-password
+    driver-class-name: org.postgresql.Driver
+
   security:
     keys:
       rsa:
