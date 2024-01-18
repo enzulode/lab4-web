@@ -19,6 +19,11 @@ spring:
       pool-name: hikari-pool-auth-service # cp name
       register-mbeans: true # enabling jmx beans for monitoring purposes
 
+  flyway:
+    locations:
+      - classpath:db/{vendor}/common
+      - classpath:db/{vendor}/dev
+
   security:
     keys:
       rsa:
