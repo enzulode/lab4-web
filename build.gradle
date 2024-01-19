@@ -19,6 +19,8 @@ allprojects {
 			googleJavaFormat().aosp()
 
 			formatAnnotations()
+
+            toggleOffOn('formatter:off', 'formatter:on')
 		}
 	}
 
