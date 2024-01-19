@@ -9,6 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 /**
  * This service is responsible for user loading process. Service loads user from the effective
@@ -29,6 +30,7 @@ public class CustomUserDetailsServiceImpl implements UserDetailsService {
      * @throws UsernameNotFoundException if user was not found
      */
     @Override
+    @Transactional(readOnly = true)
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Optional<UserEntity> entity = userRepository.findByEmail(username);
         if (entity.isEmpty())
