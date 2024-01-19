@@ -14,6 +14,10 @@ import java.util.UUID;
 import lombok.Getter;
 import lombok.Setter;
 
+/**
+ * This class represents a set of allowed operations. Every role is mapped on several {@link
+ * AuthorityEntity}s as a permissions customization improvement.
+ */
 @Getter
 @Setter
 @Entity
