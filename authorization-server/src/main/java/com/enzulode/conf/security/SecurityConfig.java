@@ -20,6 +20,9 @@ public class SecurityConfig {
     /** User details service instance. */
     private final UserDetailsService userDetailsService;
 
+    /** This property defines an application login page url. */
+    public static final String LOGIN_PAGE_URL = "/login";
+
     /**
      * Constructs security configuration from provided parameters.
      *
@@ -50,7 +53,7 @@ public class SecurityConfig {
                 .requestMatchers("/actuator/**").permitAll()
                 .anyRequest().authenticated()
             )
-            .formLogin(loginCustomizer -> loginCustomizer.loginPage("/login"))
+            .formLogin(loginCustomizer -> loginCustomizer.loginPage(LOGIN_PAGE_URL))
             .csrf(AbstractHttpConfigurer::disable)
             .cors(corsCustomizer -> corsCustomizer.configurationSource(corsConfigSource));
 
