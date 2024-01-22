@@ -1,5 +1,6 @@
 package com.enzulode.conf;
 
+import com.enzulode.conf.security.SecurityConfig;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
@@ -37,25 +38,26 @@ public class AuthorizationServerConfig {
     @Order(1)
     public SecurityFilterChain authServerSecurityFilterChain(HttpSecurity security)
             throws Exception {
-        //        @formatter:off
-//        apply default oauth2 security configurations
+        // @formatter:off
+        // apply default oauth2 security configurations
         OAuth2AuthorizationServerConfiguration.applyDefaultSecurity(security);
 
-//        enable OIDC, token generator, token and token introspection endpoints
+        // enable OIDC, token generator, token and token introspection endpoints
         security.getConfigurer(OAuth2AuthorizationServerConfigurer.class)
             .oidc(Customizer.withDefaults());
 
-//        configure authentication entrypoint and enable jwt-based authentication for the resource server
+        // authentication entrypoint & jwt-based authentication configurations
         security
-            .exceptionHandling(ex -> ex
-                .authenticationEntryPoint(
-                    new LoginUrlAuthenticationEntryPoint("/login")
+            .exceptionHandling(
+                exHandlingCustomizer -> exHandlingCustomizer.authenticationEntryPoint(
+                    new LoginUrlAuthenticationEntryPoint(SecurityConfig.LOGIN_PAGE_URL)
                 )
             )
-            .oauth2ResourceServer(rs -> rs
-                .jwt(Customizer.withDefaults())
+            .oauth2ResourceServer(
+                resourceServerCustomizer -> resourceServerCustomizer.jwt(Customizer.withDefaults())
             );
-//        @formatter:on
+        // @formatter:on
+
         return security.build();
     }
 
@@ -67,7 +69,7 @@ public class AuthorizationServerConfig {
      */
     @Bean
     public RegisteredClientRepository registeredClientRepository() {
-        //        @formatter:off
+        // @formatter:off
         TokenSettings tokenSettings = TokenSettings.builder()
             .accessTokenTimeToLive(Duration.of(5, ChronoUnit.MINUTES))
             .refreshTokenTimeToLive(Duration.of(120, ChronoUnit.MINUTES))
@@ -91,7 +93,7 @@ public class AuthorizationServerConfig {
             .scope("user.write")
             .tokenSettings(tokenSettings)
             .build();
-//        @formatter:on
+        // @formatter:on
 
         return new InMemoryRegisteredClientRepository(developmentClient);
     }
