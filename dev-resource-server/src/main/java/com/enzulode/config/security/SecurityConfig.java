@@ -1,4 +1,4 @@
-package com.enzulode.config;
+package com.enzulode.config.security;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.security.oauth2.resource.OAuth2ResourceServerProperties;
@@ -9,14 +9,15 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.oauth2.jwt.JwtDecoders;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfigurationSource;
 
-/** This class contains security policy configuration for the development resource server. */
+/** This class encapsulates all security-related configurations. */
 @Configuration
 @EnableMethodSecurity
-public class ResourceServerConfig {
+public class SecurityConfig {
 
     /** Resource server configuration properties. */
-    private final OAuth2ResourceServerProperties properties;
+    private final OAuth2ResourceServerProperties resourceServerProps;
 
     /** Custom authentication provider instance. */
     private final AuthenticationProvider authenticationProvider;
@@ -24,13 +25,13 @@ public class ResourceServerConfig {
     /**
      * Constructs resource server config instance with provided parameters.
      *
-     * @param properties resource server properties instance
+     * @param resourceServerProps resource server properties instance
      * @param authenticationProvider authentication provider instance
      */
-    public ResourceServerConfig(
-            OAuth2ResourceServerProperties properties,
+    public SecurityConfig(
+            OAuth2ResourceServerProperties resourceServerProps,
             @Qualifier("customAuthenticationProvider") AuthenticationProvider authenticationProvider) {
-        this.properties = properties;
+        this.resourceServerProps = resourceServerProps;
         this.authenticationProvider = authenticationProvider;
     }
 
@@ -42,22 +43,27 @@ public class ResourceServerConfig {
      * @throws Exception if configuration process fails
      */
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity security) throws Exception {
-        //        @formatter:off
+    public SecurityFilterChain configureSecurityFilterChain(
+            HttpSecurity security,
+            @Qualifier("customCorsPolicyConfig") CorsConfigurationSource corsConfigSource)
+            throws Exception {
+        // @formatter:off
+        String jwtIssuerLocation = resourceServerProps.getJwt().getIssuerUri();
         security
             .authorizeHttpRequests(
-                auth -> auth
+                authorize -> authorize
                     .anyRequest().authenticated()
             )
             .oauth2ResourceServer(
-                rs -> rs.jwt(jwt -> jwt
-                    .decoder(
-                        JwtDecoders.fromIssuerLocation(properties.getJwt().getIssuerUri())
+                resourceServer -> resourceServer.jwt(
+                    jwtCustomization -> jwtCustomization.decoder(
+                        JwtDecoders.fromIssuerLocation(jwtIssuerLocation)
                     )
                 )
             )
-            .authenticationProvider(authenticationProvider);
-//        @formatter:on
+            .authenticationProvider(authenticationProvider)
+            .cors(corsCustomization -> corsCustomization.configurationSource(corsConfigSource));
+        // @formatter:on
         return security.build();
     }
 }
