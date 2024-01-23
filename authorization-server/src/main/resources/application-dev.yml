@@ -5,6 +5,9 @@ spring:
   application:
     name: authorization-server
 
+  mvc:
+    static-path-pattern: /static/**
+
   datasource:
     url: jdbc:postgresql://localhost:5432/postgre-dev
     username: dev-user
