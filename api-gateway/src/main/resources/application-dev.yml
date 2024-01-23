@@ -9,6 +9,7 @@ spring:
     gateway:
       default-filters:
         - TokenRelay=
+        - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_UNIQUE
       routes:
         - id: dev-resource
           uri: lb://DEV-RESOURCE-SERVER-1/
