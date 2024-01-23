@@ -23,6 +23,11 @@ public class SecurityConfig {
     /** This property defines an application login page url. */
     public static final String LOGIN_PAGE_URL = "/login";
 
+    /** This property defines all authorization server frontend-related allowed urls. */
+    public static final String[] AUTHORIZATION_SERVER_FRONTEND_URLS = {
+        LOGIN_PAGE_URL, "/static/**"
+    };
+
     /**
      * Constructs security configuration from provided parameters.
      *
@@ -51,6 +56,7 @@ public class SecurityConfig {
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/error").permitAll()
                 .requestMatchers("/actuator/**").permitAll()
+                .requestMatchers(AUTHORIZATION_SERVER_FRONTEND_URLS).permitAll()
                 .anyRequest().authenticated()
             )
             .formLogin(loginCustomizer -> loginCustomizer.loginPage(LOGIN_PAGE_URL))
