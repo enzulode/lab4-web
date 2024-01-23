@@ -1,0 +1,15 @@
+<div class="login-form">
+  <p>There will be a login form!</p>
+
+  <form (ngSubmit)="performLogin()" [formGroup]="formGroup">
+    <div class="username-control">
+      <input formControlName="username" placeholder="Username" autofocus>
+    </div>
+    <div class="password-control">
+      <input formControlName="password" placeholder="Password">
+    </div>
+    <div class="submit-control">
+      <button type="submit">Login</button>
+    </div>
+  </form>
+</div>

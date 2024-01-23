@@ -1,16 +1,17 @@
-package com.enzulode.conf;
+package com.enzulode.conf.security;
 
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.cors.CorsConfigurationSource;
 
 /** This class contains security-related configurations for the authorization server. */
 @Configuration
@@ -18,6 +19,14 @@ public class SecurityConfig {
 
     /** User details service instance. */
     private final UserDetailsService userDetailsService;
+
+    /** This property defines an application login page url. */
+    public static final String LOGIN_PAGE_URL = "/login";
+
+    /** This property defines all authorization server frontend-related allowed urls. */
+    public static final String[] AUTHORIZATION_SERVER_FRONTEND_URLS = {
+        LOGIN_PAGE_URL, "/static/**"
+    };
 
     /**
      * Constructs security configuration from provided parameters.
@@ -38,20 +47,25 @@ public class SecurityConfig {
      */
     @Bean
     @Order(2)
-    public SecurityFilterChain defaultSecurityFilterChain(HttpSecurity security) throws Exception {
-        //        @formatter:off
+    public SecurityFilterChain defaultSecurityFilterChain(
+            HttpSecurity security,
+            @Qualifier("customCorsPolicyConfig") CorsConfigurationSource corsConfigSource)
+            throws Exception {
+        // @formatter:off
         security
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/error").permitAll()
                 .requestMatchers("/actuator/**").permitAll()
-                .requestMatchers("/oauth2/**").permitAll()
+                .requestMatchers(AUTHORIZATION_SERVER_FRONTEND_URLS).permitAll()
                 .anyRequest().authenticated()
             )
-            .formLogin(Customizer.withDefaults());
+            .formLogin(loginCustomizer -> loginCustomizer.loginPage(LOGIN_PAGE_URL))
+            .csrf(AbstractHttpConfigurer::disable)
+            .cors(corsCustomizer -> corsCustomizer.configurationSource(corsConfigSource));
 
         security.getSharedObject(AuthenticationManagerBuilder.class)
             .userDetailsService(userDetailsService);
-//        @formatter:on
+        // @formatter:on
         return security.build();
     }
 
